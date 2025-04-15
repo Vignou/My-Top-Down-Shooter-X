@@ -10,7 +10,7 @@ public class Player_WeaponController : MonoBehaviour
     private const float REFERENCE_BULLET_SPEED = 20;
     //This is the default speed from whcih our mass formula is derived.
 
-    [SerializeField] private Weapon_Data defaultWeaponData;
+    [SerializeField] private List<Weapon_Data> defaultWeaponData;
     [SerializeField] private Weapon currentWeapon;
     private bool weaponReady;
     private bool isShooting;
@@ -34,8 +34,6 @@ public class Player_WeaponController : MonoBehaviour
     {
         player = GetComponent<Player>();
         AssignInputEvents();
-
-        Invoke(nameof(EquipStartingWeapon), .1f);
     }
 
     private void Update()
@@ -46,9 +44,16 @@ public class Player_WeaponController : MonoBehaviour
 
     #region Slots managment - Pickup\Equip\Drop\Ready Weapon
 
-    private void EquipStartingWeapon()
+    public void SetDefaultWeapon(List<Weapon_Data> newWeaponData)
     {
-        weaponSlots[0] = new Weapon(defaultWeaponData);
+        defaultWeaponData = new List<Weapon_Data>(newWeaponData);
+        weaponSlots.Clear();
+
+        foreach(Weapon_Data weaponData in defaultWeaponData)
+        {
+            PickupWeapon(new Weapon(weaponData));
+        }
+
         EquipWeapon(0);
     }
     private void EquipWeapon(int i)
@@ -61,7 +66,7 @@ public class Player_WeaponController : MonoBehaviour
         currentWeapon = weaponSlots[i];
         player.weaponVisuals.PlayWeaponEquipAnimation();
 
-        CameraManager.instance.ChangeCameraDistance(currentWeapon.cameraDistance);
+        //CameraManager.instance.ChangeCameraDistance(currentWeapon.cameraDistance);
 
         UpdateWeaponUI();
     }
@@ -112,7 +117,14 @@ public class Player_WeaponController : MonoBehaviour
         droppedWeapon.GetComponent<Pickup_Weapon>()?.SetupPickupWeapon(currentWeapon, transform);
     }
 
-    public void SetWeaponReady(bool ready) => weaponReady = ready;
+    public void SetWeaponReady(bool ready)
+    {
+        weaponReady = ready;
+
+        if(ready)
+            player.sound.weaponReady.Play();
+    }
+        
     public bool WeaponReady() => weaponReady;
 
     #endregion
@@ -165,6 +177,7 @@ public class Player_WeaponController : MonoBehaviour
     {
         currentWeapon.bulletsInMagazine--;
         UpdateWeaponUI();
+        player.weaponVisuals.CurrentWeaponModel().fireSFX.Play();
 
 
         GameObject newBullet = ObjectPool.instance.GetObject(bulletPrefab,GunPoint());
@@ -188,6 +201,7 @@ public class Player_WeaponController : MonoBehaviour
         SetWeaponReady(false);
         player.weaponVisuals.PlayReloadAnimation();
 
+        player.weaponVisuals.CurrentWeaponModel().reloadSfx.Play();
         // We do actual refill of bullets in Player_AnimationEvents
         // We UpdateWeaponUI in Player_AnimationEvents
     }
@@ -199,7 +213,7 @@ public class Player_WeaponController : MonoBehaviour
 
         Vector3 direction = (aim.position - GunPoint().position).normalized;
 
-        if (player.aim.CanAimPrecisly() == false && player.aim.Target() == null)
+        if (player.aim.CanAimPrecisly() == false)
             direction.y = 0;
 
         return direction;
