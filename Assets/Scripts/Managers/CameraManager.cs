@@ -15,7 +15,7 @@ public class CameraManager : MonoBehaviour
     [Header("Camera distance")]
     [SerializeField] private bool canChangeCameraDistance;
     [SerializeField] private float distanceChangeRate;
-    private float targetCameraDistance;
+    [SerializeField] private float targetCameraDistance;
 
     private void Awake()
     {
@@ -52,7 +52,18 @@ public class CameraManager : MonoBehaviour
             Mathf.Lerp(currentDistnace, targetCameraDistance, distanceChangeRate * Time.deltaTime);
     }
 
-    public void ChangeCameraDistance(float distance) => targetCameraDistance = distance;
+    public void ChangeCameraDistance(float distance, float newChangeRate = .25f)
+    {
+        distanceChangeRate = newChangeRate;
+        targetCameraDistance = distance;
+    }
+
+    public void ChangeCameraTarget(Transform target, float cameraDistance = 10, float newLookAheadTime = 0)
+    {
+        virtualCamera.Follow = target;
+        transposer.m_LookaheadTime = newLookAheadTime;
+        ChangeCameraDistance(cameraDistance);
+    }      
 
 
 }
