@@ -28142,7 +28142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   friendlyFire: 0
-  quickStart: 1
+  quickStart: 0
 --- !u!4 &1687976509
 Transform:
   m_ObjectHideFlags: 0
@@ -29258,15 +29258,17 @@ MonoBehaviour:
   camChangeRate: 5
   aim: {fileID: 489048668}
   isAimingPrecisly: 0
-  isLockingToTarget: 1
   offsetChangeRate: 6
+  preciseAim:
+    serializedVersion: 2
+    m_Bits: 6337
+  regularAim:
+    serializedVersion: 2
+    m_Bits: 64
   cameraTarget: {fileID: 2141233248}
   minCameraDistance: 1
   maxCameraDistance: 3
   cameraSensetivity: 5
-  aimLayerMask:
-    serializedVersion: 2
-    m_Bits: 7927
 --- !u!114 &1746550280
 MonoBehaviour:
   m_ObjectHideFlags: 0
